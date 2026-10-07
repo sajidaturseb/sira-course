@@ -72,6 +72,36 @@
   function setupLesson() {
     if (!current) return;
     $('introTitle').textContent = current.title;
+    const reading = window.SIRA_READING_DATA?.[current.n];
+    const article = $('lessonReading');
+    article.replaceChildren();
+    if (reading) {
+      reading.paragraphs.forEach((source, index) => {
+        const colon = source.indexOf(':');
+        const titled = colon > 0 && colon <= 105 && !/[.!?]/.test(source.slice(0, colon));
+        if (index === 0 && !titled) {
+          const introduction = document.createElement('p');
+          introduction.className = 'reading-intro';
+          introduction.textContent = source;
+          article.append(introduction);
+          return;
+        }
+        const block = document.createElement('section');
+        block.className = `reading-block ${index % 2 ? 'warm' : 'blue'}`;
+        if (titled) {
+          const heading = document.createElement('h2');
+          heading.textContent = source.slice(0, colon).trim();
+          block.append(heading);
+        }
+        const body = source.slice(titled ? colon + 1 : 0).trim();
+        if (body) {
+          const paragraph = document.createElement('p');
+          paragraph.textContent = body;
+          block.append(paragraph);
+        }
+        article.append(block);
+      });
+    }
     if (byNumber.has(requested)) {
       document.title = `${current.n} нче дәрес — Сира`;
       $('coursePill').textContent = `${current.n} нче дәрес`;
